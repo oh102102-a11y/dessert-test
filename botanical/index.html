@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>나는 무슨 디저트일까? | Botanical Dessert Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@400;500;700&display=swap');
+
+  :root{
+    --paper:#f3efe6;
+    --paper-2:#eae3d3;
+    --ink:#2f2a22;
+    --ink-soft:#5a5346;
+    --olive:#6b7256;
+    --olive-deep:#454b35;
+    --rust:#a9573a;
+    --line:#c9bfa6;
+    --card:#fbf9f3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    width:100%;
+    min-height:100%;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(107,114,86,0.07), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(169,87,58,0.06), transparent 45%);
+    color:var(--ink);
+    font-family:'Noto Serif KR', serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:0 22px;
+  }
+  .screen{
+    display:none;
+    flex:1;
+    flex-direction:column;
+    justify-content:center;
+    padding:50px 0 40px;
+    animation:fadeIn .5s ease;
+  }
+  .screen.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+  .kicker{
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:14px;
+    letter-spacing:3px;
+    color:var(--olive-deep);
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .kicker::before, .kicker::after{ content:"— "; }
+  .hero-emoji{
+    text-align:center;
+    font-size:64px;
+    margin-bottom:14px;
+    filter:sepia(0.25) saturate(0.85);
+  }
+  .title{
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-weight:600;
+    font-size:34px;
+    line-height:1.35;
+    margin-bottom:16px;
+    color:var(--ink);
+  }
+  .title em{
+    font-style:italic;
+    color:var(--rust);
+  }
+  .subtitle{
+    text-align:center;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.85;
+    margin-bottom:32px;
+    letter-spacing:0.2px;
+  }
+  .divider{
+    width:46px;height:1px;
+    background:var(--line);
+    margin:0 auto 28px;
+  }
+  .btn{
+    display:block;
+    width:100%;
+    padding:16px 0;
+    border-radius:2px;
+    border:1px solid var(--olive-deep);
+    font-family:'Noto Serif KR', serif;
+    font-size:14.5px;
+    font-weight:500;
+    letter-spacing:2px;
+    cursor:pointer;
+    text-align:center;
+    transition:all .2s ease;
+    text-transform:uppercase;
+  }
+  .btn-primary{
+    background:var(--olive-deep);
+    color:var(--paper);
+  }
+  .btn-primary:active{opacity:0.8;}
+  .btn-ghost{
+    background:transparent;
+    color:var(--olive-deep);
+    border:1px solid var(--line);
+    margin-top:12px;
+  }
+  .btn-ghost:active{opacity:0.7;}
+
+  .meta-row{
+    display:flex;
+    justify-content:center;
+    gap:0;
+    margin-bottom:32px;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .meta-row div{
+    padding:0 14px;
+    border-right:1px solid var(--line);
+  }
+  .meta-row div:last-child{border-right:none;}
+
+  /* progress */
+  .progress-wrap{padding-top:26px;margin-bottom:22px;}
+  .progress-top{
+    display:flex;justify-content:space-between;
+    font-size:11px;color:var(--ink-soft);letter-spacing:1.5px;
+    margin-bottom:10px;text-transform:uppercase;
+  }
+  .progress-bar{
+    width:100%;height:1px;
+    background:var(--line);
+    position:relative;
+  }
+  .progress-fill{
+    position:absolute;top:-1.5px;left:0;
+    height:4px;
+    background:var(--rust);
+    transition:width .4s ease;
+  }
+
+  .q-screen{padding-top:0;justify-content:flex-start;}
+  .q-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:34px 26px 28px;
+    margin-top:6px;
+  }
+  .q-num{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:13px;
+    color:var(--rust);
+    letter-spacing:1.5px;
+    margin-bottom:14px;
+  }
+  .q-text{
+    font-size:19px;
+    font-weight:500;
+    line-height:1.6;
+    margin-bottom:28px;
+    color:var(--ink);
+  }
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    width:100%;
+    text-align:left;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    padding:16px 2px;
+    color:var(--ink);
+    font-family:'Noto Serif KR', serif;
+    font-size:14.5px;
+    line-height:1.6;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .option:last-child{border-bottom:none;}
+  .option:active{opacity:0.6;}
+  .option:hover{color:var(--rust);}
+  .option .emoji{font-size:18px;flex-shrink:0;filter:sepia(0.3);}
+  .option.selected{
+    color:var(--rust);
+    font-weight:500;
+  }
+
+  /* loading */
+  .loading-wrap{align-items:center;text-align:center;}
+  .spinner{
+    width:42px;height:42px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    border-top-color:var(--rust);
+    animation:spin 1s linear infinite;
+    margin:0 auto 26px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* result */
+  .result-screen{padding-top:34px;}
+  .result-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:42px 28px 34px;
+    text-align:center;
+    position:relative;
+  }
+  .result-card::before{
+    content:"";
+    position:absolute;
+    top:14px;left:14px;right:14px;bottom:14px;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
+  .result-label{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:13px;
+    letter-spacing:2px;
+    color:var(--rust);
+    margin-bottom:16px;
+  }
+  .result-emoji{font-size:62px;margin-bottom:10px;filter:sepia(0.25) saturate(0.85);}
+  .result-name{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:600;
+    font-size:30px;
+    margin-bottom:10px;
+    color:var(--ink);
+  }
+  .result-tag{
+    font-size:13.5px;
+    font-style:italic;
+    color:var(--ink-soft);
+    margin-bottom:26px;
+  }
+  .result-desc{
+    font-size:14px;
+    line-height:1.95;
+    color:var(--ink-soft);
+    text-align:left;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+  }
+
+  .section-title{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:14px;
+    letter-spacing:1.5px;
+    color:var(--olive-deep);
+    margin:32px 0 16px;
+    text-align:center;
+  }
+  .compat-grid{display:flex;gap:14px;}
+  .compat-card{
+    flex:1;
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:20px 12px;
+    text-align:center;
+  }
+  .compat-card.best{border-color:var(--olive);}
+  .compat-card.tricky{border-color:var(--rust);}
+  .compat-emoji{font-size:30px;margin-bottom:8px;filter:sepia(0.25) saturate(0.85);}
+  .compat-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;margin-bottom:4px;color:var(--ink);}
+  .compat-type{font-size:9.5px;color:var(--ink-soft);margin-bottom:10px;letter-spacing:1.5px;text-transform:uppercase;}
+  .compat-desc{font-size:11.5px;line-height:1.65;color:var(--ink-soft);}
+
+  .share-row{display:flex;gap:10px;margin-top:32px;}
+  .share-row .btn{flex:1;}
+
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:#9a9078;
+    margin-top:30px;
+    line-height:1.7;
+    letter-spacing:0.3px;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:30px;left:50%;
+    transform:translateX(-50%);
+    background:var(--olive-deep);
+    color:var(--paper);
+    padding:12px 22px;
+    font-size:12.5px;
+    letter-spacing:0.5px;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:999;white-space:nowrap;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- INTRO -->
+  <section class="screen active" id="screen-intro">
+    <div class="kicker">Dessert Personality Study</div>
+    <div class="hero-emoji">🍰</div>
+    <h1 class="title">나는 어떤 <em>디저트</em><br>일까</h1>
+    <div class="divider"></div>
+    <p class="subtitle">여덜 개의 질문으로 알아보는<br>당신의 디저트 같은 성격, 그리고<br>찰떡 궁합 / 까다로운 궁합까지</p>
+    <div class="meta-row">
+      <div>약 1분</div>
+      <div>8문항</div>
+      <div>8가지 유형</div>
+    </div>
+    <button class="btn btn-primary" onclick="startTest()">테스트 시작하기</button>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section class="screen q-screen" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progress-label">Q1 / 8</span>
+        <span id="progress-percent">12%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:12%"></div></div>
+    </div>
+    <div class="q-card">
+      <div class="q-num" id="q-num">Question 01</div>
+      <div class="q-text" id="q-text">질문 텍스트</div>
+      <div id="q-options"></div>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <section class="screen loading-wrap" id="screen-loading">
+    <div class="spinner"></div>
+    <p class="subtitle" style="margin-bottom:0;">당신의 디저트를 만드는 중...</p>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen result-screen" id="screen-result">
+    <div class="result-card">
+      <div class="result-label">Your Dessert Type</div>
+      <div class="result-emoji" id="r-emoji">🍮</div>
+      <div class="result-name" id="r-name">디저트 이름</div>
+      <div class="result-tag" id="r-tag">한줄 태그</div>
+      <div class="result-desc" id="r-desc">설명</div>
+    </div>
+
+    <div class="section-title">궁합 디저트</div>
+    <div class="compat-grid">
+      <div class="compat-card best">
+        <div class="compat-emoji" id="best-emoji">🍩</div>
+        <div class="compat-name" id="best-name">최고 궁합</div>
+        <div class="compat-type">Best Match</div>
+        <div class="compat-desc" id="best-desc"></div>
+      </div>
+      <div class="compat-card tricky">
+        <div class="compat-emoji" id="tricky-emoji">🍋</div>
+        <div class="compat-name" id="tricky-name">까다로운 궁합</div>
+        <div class="compat-type">Tricky Match</div>
+        <div class="compat-desc" id="tricky-desc"></div>
+      </div>
+    </div>
+
+    <div class="share-row">
+      <button class="btn btn-primary" onclick="copyResult()">결과 공유하기</button>
+    </div>
+    <button class="btn btn-ghost" onclick="restartTest()">다시 테스트하기</button>
+
+    <p class="footer-note">본 테스트는 재미를 위한 콘텐츠이며<br>과학적 근거에 기반하지 않습니다.</p>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TYPES = {
+  macaron:{
+    emoji:"🌈", name:"마카롱", tag:"화려하지만 속은 한없이 섬세한 사람",
+    desc:"겉으로는 화려하고 사교적이지만, 속은 누구보다 예민하고 섬세해요. 작은 균열에도 쉽게 부서질 수 있지만, 그만큼 정교하고 완성도 높은 결과물을 만들어내는 사람입니다. 디테일을 중요하게 여기고, 인정받을 때 가장 큰 만족을 느껴요."
+  },
+  chocolate:{
+    emoji:"🍫", name:"초콜릿", tag:"진하고 깊은 매력을 가진 사람",
+    desc:"처음엔 무뚝뚝해 보일 수 있지만, 알면 알수록 깊고 진한 매력이 느껴지는 타입이에요. 감정 기복이 있지만 그만큼 솔직하고, 한번 마음을 준 사람에게는 끝까지 진심을 다합니다. 약간의 씁쓸함 속에 따뜻함을 품고 있어요."
+  },
+  icecream:{
+    emoji:"🍦", name:"아이스크림", tag:"시원하고 자유로운 분위기 메이커",
+    desc:"분위기를 시원하게 풀어주는 능력자! 어디서든 환영받는 인기쟁이지만, 한곳에 오래 머무르기보다는 변화를 즐기는 자유로운 영혼이에요. 다만 너무 쉽게 마음을 녹이는 게 단점이 될 수도 있어요."
+  },
+  madeleine:{
+    emoji:"🐚", name:"마들렌", tag:"소박하지만 향이 깊은 사람",
+    desc:"화려하진 않지만 은은하고 깊은 향기로 사람을 끌어당기는 타입이에요. 익숙함과 안정감을 주는 사람으로, 곁에 있으면 마음이 편안해진다는 말을 자주 듣습니다. 작은 것에서 추억과 행복을 잘 찾아내요."
+  },
+  tiramisu:{
+    emoji:"☕", name:"티라미수", tag:"여러 겹의 매력을 가진 사람",
+    desc:"한 가지로 정의하기 어려운, 층층이 다른 매력을 가진 사람이에요. 알아갈수록 새로운 모습이 발견되고, 깊이 있는 대화를 나눌수록 매력이 배가됩니다. 약간의 쌉싸름함(예민함)도 매력의 일부예요."
+  },
+  croissant:{
+    emoji:"🥐", name:"크루아상", tag:"겉바속촉, 반전 매력의 소유자",
+    desc:"겉으로는 바삭하고 도시적인 느낌이지만, 속은 한없이 부드럽고 따뜻한 반전 매력의 소유자예요. 자기관리를 철저히 하는 편이고, 친해지기 전엔 거리감이 느껴지지만 한번 친해지면 누구보다 다정해집니다."
+  },
+  bubbletea:{
+    emoji:"🧋", name:"버블티", tag:"트렌디하고 텐션 좋은 인싸형",
+    desc:"늘 새로운 걸 시도하고 유행에 민감한 트렌드세터예요. 사람들과 어울리는 걸 좋아하고 텐션이 높아 분위기를 잘 살립니다. 다만 본질보다 겉모습에 신경 쓰다 알맹이(진심)를 놓치지 않도록 주의가 필요해요."
+  },
+  cottoncandy:{
+    emoji:"🍭", name:"솜사탕", tag:"순수하고 사랑스러운 힐링 메이커",
+    desc:"존재만으로 주변을 몽글몽글하게 만드는 힐링형 인간이에요. 순수하고 사랑스러운 매력으로 누구에게나 사랑받지만, 작은 자극에도 금방 녹아버릴 만큼 마음이 여린 편입니다. 다정한 보호가 필요한 타입이에요."
+  }
+};
+
+const COMPAT = {
+  macaron:{best:"croissant", tricky:"bubbletea",
+    bestDesc:"섬세함과 자기관리가 만나 서로를 더 빛나게 해줘요.",
+    trickyDesc:"속도감이 너무 달라 서로 피곤해질 수 있어요."},
+  chocolate:{best:"madeleine", tricky:"cottoncandy",
+    bestDesc:"깊은 향과 진한 맛이 은은하게 잘 어우러져요.",
+    trickyDesc:"진중함과 여린 감성이 자주 엇갈릴 수 있어요."},
+  icecream:{best:"bubbletea", tricky:"tiramisu",
+    bestDesc:"둘 다 텐션이 높아 만나면 분위기가 두 배가 돼요.",
+    trickyDesc:"가벼움과 깊이의 속도 차이로 답답해질 수 있어요."},
+  madeleine:{best:"chocolate", tricky:"icecream",
+    bestDesc:"잔잔한 향과 진한 매력이 안정적인 케미를 만들어요.",
+    trickyDesc:"느긋함과 즉흥적인 성향이 어긋날 때가 많아요."},
+  tiramisu:{best:"cottoncandy", tricky:"icecream",
+    bestDesc:"깊이와 순수함이 만나 서로를 채워주는 조합이에요.",
+    trickyDesc:"신중함과 가벼움이 자주 부딪힐 수 있어요."},
+  croissant:{best:"macaron", tricky:"madeleine",
+    bestDesc:"세련된 매력과 섬세함이 만나 완벽한 균형을 이뤄요.",
+    trickyDesc:"거리감을 좁히는 속도가 서로 안 맞을 수 있어요."},
+  bubbletea:{best:"icecream", tricky:"macaron",
+    bestDesc:"트렌디함과 시원함이 만나 늘 즐거운 케미예요.",
+    trickyDesc:"섬세함과 즉흥성이 부딪혀 오해가 생기기 쉬워요."},
+  cottoncandy:{best:"tiramisu", tricky:"chocolate",
+    bestDesc:"여린 마음을 깊이 있게 잘 받아주는 환상 조합이에요.",
+    trickyDesc:"여린 마음에 비해 너무 진한 감정 표현이 부담될 수 있어요."}
+};
+
+const QUESTIONS = [
+  {
+    text:"친구들과의 모임에서 나는 보통...",
+    options:[
+      {label:"분위기를 살리는 분위기 메이커 역할", emoji:"🎉", score:["icecream","bubbletea"]},
+      {label:"조용히 사람들 얘기를 들어주는 편", emoji:"🤍", score:["madeleine","tiramisu"]},
+      {label:"먼저 다가가긴 어렵지만 친해지면 누구보다 다정함", emoji:"🥐", score:["croissant","macaron"]},
+      {label:"존재만으로 주변을 편안하게 해주는 편", emoji:"☁️", score:["cottoncandy"]}
+    ]
+  },
+  {
+    text:"스트레스를 받으면 나는...",
+    options:[
+      {label:"겉으로는 괜찮아 보이지만 속으로 끙끙 앓는다", emoji:"🌈", score:["macaron"]},
+      {label:"감정이 그대로 얼굴에 드러난다", emoji:"🍫", score:["chocolate"]},
+      {label:"훌훌 털고 새로운 걸 찾아 환기한다", emoji:"🍦", score:["icecream","bubbletea"]},
+      {label:"조용히 혼자만의 시간을 가지며 추스른다", emoji:"🐚", score:["madeleine","tiramisu"]}
+    ]
+  },
+  {
+    text:"새로운 사람을 만났을 때 첫 인상은?",
+    options:[
+      {label:"세련되고 도시적인 느낌", emoji:"🥐", score:["croissant"]},
+      {label:"화려하고 눈에 띄는 느낌", emoji:"🌈", score:["macaron","bubbletea"]},
+      {label:"수수하지만 자꾸 생각나는 느낌", emoji:"🐚", score:["madeleine"]},
+      {label:"순둥순둥하고 사랑스러운 느낌", emoji:"🍭", score:["cottoncandy"]}
+    ]
+  },
+  {
+    text:"이상적인 주말은?",
+    options:[
+      {label:"새로운 카페나 핫플레이스 탐방", emoji:"🧋", score:["bubbletea"]},
+      {label:"집에서 좋아하는 영화나 책으로 힐링", emoji:"☕", score:["tiramisu","madeleine"]},
+      {label:"친구들 불러서 신나게 노는 날", emoji:"🍦", score:["icecream"]},
+      {label:"나만의 디테일한 취미에 몰입하는 시간", emoji:"🌈", score:["macaron"]}
+    ]
+  },
+  {
+    text:"연애(혹은 친한 관계)에서 나는...",
+    options:[
+      {label:"한번 마음 주면 끝까지 진심을 다하는 편", emoji:"🍫", score:["chocolate"]},
+      {label:"표현이 풍부하고 다정한 편", emoji:"🍭", score:["cottoncandy"]},
+      {label:"여러 모습을 천천히 보여주는 편", emoji:"☕", score:["tiramisu"]},
+      {label:"츤데레처럼 무뚝뚝하지만 속은 따뜻한 편", emoji:"🥐", score:["croissant"]}
+    ]
+  },
+  {
+    text:"나를 한마디로 표현하면?",
+    options:[
+      {label:"완벽주의, 디테일에 강함", emoji:"🌈", score:["macaron"]},
+      {label:"트렌드에 민감, 늘 새로운 것 추구", emoji:"🧋", score:["bubbletea"]},
+      {label:"은근한 매력, 알수록 빠지는 사람", emoji:"🐚", score:["madeleine","tiramisu"]},
+      {label:"순수하고 여린 마음을 가진 사람", emoji:"🍭", score:["cottoncandy"]}
+    ]
+  },
+  {
+    text:"단점이라고 생각하는 나의 모습은?",
+    options:[
+      {label:"감정 기복이 있는 편", emoji:"🍫", score:["chocolate"]},
+      {label:"너무 쉽게 마음을 열거나 녹는 편", emoji:"🍦", score:["icecream","cottoncandy"]},
+      {label:"친해지기까지 시간이 오래 걸리는 편", emoji:"🥐", score:["croissant"]},
+      {label:"작은 일에도 예민하게 반응하는 편", emoji:"🌈", score:["macaron"]}
+    ]
+  },
+  {
+    text:"사람들이 나에게 자주 하는 말은?",
+    options:[
+      {label:"\"너랑 있으면 마음이 편해져\"", emoji:"🐚", score:["madeleine"]},
+      {label:"\"알면 알수록 매력있다\"", emoji:"☕", score:["tiramisu","croissant"]},
+      {label:"\"넌 항상 분위기를 잘 살려\"", emoji:"🍦", score:["icecream","bubbletea"]},
+      {label:"\"너무 사랑스럽고 귀여워\"", emoji:"🍭", score:["cottoncandy"]}
+    ]
+  }
+];
+
+let current = 0;
+let scores = {};
+Object.keys(TYPES).forEach(k=>scores[k]=0);
+
+const screens = {
+  intro: document.getElementById('screen-intro'),
+  quiz: document.getElementById('screen-quiz'),
+  loading: document.getElementById('screen-loading'),
+  result: document.getElementById('screen-result')
+};
+
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startTest(){
+  current = 0;
+  Object.keys(scores).forEach(k=>scores[k]=0);
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  document.getElementById('q-num').textContent = `Question ${String(current+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-label').textContent = `Q${current+1} / ${QUESTIONS.length}`;
+  const pct = Math.round(((current)/QUESTIONS.length)*100);
+  document.getElementById('progress-percent').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const wrap = document.getElementById('q-options');
+  wrap.innerHTML = '';
+  q.options.forEach((opt, idx)=>{
+    const div = document.createElement('button');
+    div.className = 'option';
+    div.innerHTML = `<span class="emoji">${opt.emoji}</span><span>${opt.label}</span>`;
+    div.onclick = ()=>selectOption(opt, div);
+    wrap.appendChild(div);
+  });
+}
+
+function selectOption(opt, el){
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  opt.score.forEach(type=>{ scores[type] += 1; });
+
+  setTimeout(()=>{
+    current++;
+    if(current < QUESTIONS.length){
+      renderQuestion();
+    }else{
+      finishQuiz();
+    }
+  }, 250);
+}
+
+function finishQuiz(){
+  showScreen('loading');
+  setTimeout(()=>{
+    renderResult();
+    showScreen('result');
+  }, 900);
+}
+
+function getTopType(){
+  let top = null, max = -1;
+  Object.entries(scores).forEach(([k,v])=>{
+    if(v > max){ max = v; top = k; }
+  });
+  return top;
+}
+
+function renderResult(){
+  const topKey = getTopType();
+  const t = TYPES[topKey];
+  document.getElementById('r-emoji').textContent = t.emoji;
+  document.getElementById('r-name').textContent = t.name;
+  document.getElementById('r-tag').textContent = t.tag;
+  document.getElementById('r-desc').textContent = t.desc;
+
+  const c = COMPAT[topKey];
+  const best = TYPES[c.best];
+  const tricky = TYPES[c.tricky];
+
+  document.getElementById('best-emoji').textContent = best.emoji;
+  document.getElementById('best-name').textContent = best.name;
+  document.getElementById('best-desc').textContent = c.bestDesc;
+
+  document.getElementById('tricky-emoji').textContent = tricky.emoji;
+  document.getElementById('tricky-name').textContent = tricky.name;
+  document.getElementById('tricky-desc').textContent = c.trickyDesc;
+
+  window._lastResultKey = topKey;
+}
+
+function restartTest(){
+  showScreen('intro');
+}
+
+function copyResult(){
+  const t = TYPES[window._lastResultKey];
+  const text = `나는 "${t.name}" 타입! ${t.tag}\n나의 디저트 성격 테스트 해보기 👉 ${location.href}`;
+  if(navigator.share){
+    navigator.share({title:'나는 무슨 디저트일까?', text});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>showToast('결과가 복사되었어요'));
+  }else{
+    showToast('공유 기능을 지원하지 않는 환경이에요');
+  }
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
